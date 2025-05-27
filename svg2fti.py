@@ -21,12 +21,13 @@ class FTIBuilder:
 
   def gen_fti_paths(self):
     for el in self.svg_et.findall('.//{http://www.w3.org/2000/svg}path'):
-      yield FTIPath(
-        svg_document=self.svg_et,
-        svg_element=el,
-        num_samples=self.num_samples,
-        fti_color=self.fti_color
-      )
+      if el.get('d') is not None and el.get('d') != '':
+        yield FTIPath(
+          svg_document=self.svg_et,
+          svg_element=el,
+          num_samples=self.num_samples,
+          fti_color=self.fti_color
+        )
 
   def write_fti(self):
     self.fix_scale()
