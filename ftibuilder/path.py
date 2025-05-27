@@ -14,6 +14,7 @@ class FTIPath:
     self.svg_document = svg_document
     self.svg_element = svg_element
     self.svg_path = parse_path(svg_element.get('d'))
+    self.svg_transform = svg_element.get('transform')
     self.num_samples = num_samples
     self.fti_color = fti_color
 
@@ -34,6 +35,10 @@ class FTIPath:
     point = self.svg_path.point(1)
     self._points.append(point)
     print("Sample %d (lerp %f): %s" % (self.num_samples - 1, 1, point))
+    
+    # handle transformations
+    if self.svg_transform != None and self.svg_transform != '':
+      self.apply_transform();
 
     return self._points
 
@@ -134,6 +139,14 @@ class FTIPath:
 
         if parsed:
           return self.fti_color.rgb2index(*self.fti_color.rgb_float_to_dec(parsed))
-      
+
   def map_points(self, fn):
     self._points = list(map(fn, self._points))
+
+  def apply_transform(self):
+    mTranslate = re.search(r'translate\((-?\d+),(-?\d+)\)', self.svg_transform)
+    if mTranslate is not None:
+      offsetX = float(mTranslate.group(1))
+      offsetY = float(mTranslate.group(2))
+      self.map_points(lambda p: p + complex(offsetX,offsetY))
+
